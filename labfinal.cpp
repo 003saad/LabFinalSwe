@@ -1,127 +1,77 @@
-# include<iostream>
-#include<bits/stdc++.h>
-#include<gtest/gtest.h>
-
+#include <iostream>
+#include <list>
+#include <string>
+#include <gtest/gtest.h>
 using namespace std;
 
 class Student {
-private:
-    int id;
-    string name;
+    int id; string name;
 public:
     Student(int id = 0, string name = "") : id(id), name(name) {}
-    
-    int getId() const {
-        return id;
-    }
-    
-    string getName() const {
-        return name;
-    }
-    
-    void setId(int newId) {
-        id = newId;
-    }
-    
-    void setName(string newName) {
-        name = newName;
-    }
+    int getId() const { return id; }
+    string getName() const { return name; }
 };
+
 class StudentManager {
-private:
     list<Student> students;
-    
-    StudentManager() {}
-    
     static StudentManager* instance;
-    
-    StudentManager(const StudentManager&) = delete;
-    StudentManager& operator=(const StudentManager&) = delete;
-    
+    StudentManager() {}
 public:
     static StudentManager* getInstance() {
-        if (instance == nullptr) {
-            instance = new StudentManager();
-        }
+        if (!instance) instance = new StudentManager();
         return instance;
     }
-    
-    void addStudent(const Student& student) {
-        students.push_back(student);
-    }
+    void addStudent(const Student& s) { students.push_back(s); }
     bool removeStudent(int id) {
-        for (auto it = students.begin(); it != students.end(); ++it) {
-            if (it->getId() == id) {
-                students.erase(it);
-                return true;
-            }
-        }
+        auto it = find_if(students.begin(), students.end(), [id](const Student& s) { return s.getId() == id; });
+        if (it != students.end()) { students.erase(it); return true; }
         return false;
     }
-    void displayStudentNames() const {
-        cout << "Student List:" << endl;
-        for (const auto& student : students) {
-            cout << "- " << student.getName() << " (ID: " << student.getId() << ")" << endl;
-        }
+    void display() const {
+        for (const auto& s : students) 
+            cout << s.getName() << " (ID: " << s.getId() << ")\n";
     }
-    
-    void clear() {
-        students.clear();
+    void clear() { students.clear(); }
+    size_t count() const { return students.size(); }
+    bool has(int id) const {
+        return any_of(students.begin(), students.end(), [id](const Student& s) { return s.getId() == id; });
     }
-    
-    size_t getStudentCount() const {
-        return students.size();
-    }
-
-    bool hasStudent(int id) const {
-        for (const auto& student : students) {
-            if (student.getId() == id) {
-                return true;
-            }
-            e
-        }
-        return false;
-    }
-    Student getStudent(int id) const {
-        for (const auto& student : students) {
-            if (student.getId() == id) {
-                return student;
-            }
-        }
-        return Student();
+    Student get(int id) const {
+        auto it = find_if(students.begin(), students.end(), [id](const Student& s) { return s.getId() == id; });
+        return it != students.end() ? *it : Student();
     }
 };
-
 StudentManager* StudentManager::instance = nullptr;
 
 TEST(StudentManagerTest, AddStudent) {
-    StudentManager* manager = StudentManager::getInstance();
+    auto* manager = StudentManager::getInstance();
     manager->clear();
-    
-    Student student1(1, "A ahmed");
-    manager->addStudent(student1);
-    
-    EXPECT_EQ(manager->getStudentCount(), 1);
-    EXPECT_TRUE(manager->hasStudent(1));
-    EXPECT_EQ(manager->getStudent(1).getName(), "A ahmed");
+    manager->addStudent(Student(1, "A Ahmed"));
+    EXPECT_EQ(manager->count(), 1);
+    EXPECT_TRUE(manager->has(1));
+    EXPECT_EQ(manager->get(1).getName(), "A Ahmed");
 }
 
 TEST(StudentManagerTest, RemoveStudent) {
-    StudentManager* manager = StudentManager::getInstance();
+    auto* manager = StudentManager::getInstance();
     manager->clear();
-    
-    Student student1(1, "A ahmed");
-    Student student2(2, "B Ahmed");
-    manager->addStudent(student1);
-    manager->addStudent(student2);
-    
-    EXPECT_EQ(manager->getStudentCount(), 2);
-    
-    bool result = manager->removeStudent(1);
-    
-    EXPECT_TRUE(result);
-    EXPECT_EQ(manager->getStudentCount(), 1);
-    EXPECT_FALSE(manager->hasStudent(1));
-    EXPECT_TRUE(manager->hasStudent(2));
+    manager->addStudent(Student(1, "A Ahmed"));
+    manager->addStudent(Student(2, "B Ahmed"));
+    EXPECT_EQ(manager->count(), 2);
+    EXPECT_TRUE(manager->removeStudent(1));
+    EXPECT_EQ(manager->count(), 1);
+    EXPECT_FALSE(manager->has(1));
+    EXPECT_TRUE(manager->has(2));
 }
 
+int main(int argc, char** argv) {
+    auto* manager = StudentManager::getInstance();
+    manager->addStudent(Student(1, "Alice"));
+    manager->addStudent(Student(2, "Bob"));
+    manager->addStudent(Student(3, "Charlie"));
+    cout << "Initial students:\n"; manager->display();
+    manager->removeStudent(2);
+    cout << "\nAfter removing ID 2:\n"; manager->display();
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}

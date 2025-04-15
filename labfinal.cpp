@@ -66,9 +66,9 @@ TEST(StudentManagerTest, RemoveStudent) {
 
 int main(int argc, char** argv) {
     auto* manager = StudentManager::getInstance();
-    manager->addStudent(Student(1, "Alice"));
-    manager->addStudent(Student(2, "Bob"));
-    manager->addStudent(Student(3, "Charlie"));
+    manager->addStudent(Student(1, "Abul"));
+    manager->addStudent(Student(2, "Kabul"));
+    manager->addStudent(Student(3, "Babul"));
     cout << "Initial students:\n"; manager->display();
     manager->removeStudent(2);
     cout << "\nAfter removing ID 2:\n"; manager->display();

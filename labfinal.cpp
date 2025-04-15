@@ -39,6 +39,7 @@ public:
     Student get(int id) const {
         auto it = find_if(students.begin(), students.end(), [id](const Student& s) { return s.getId() == id; });
         return it != students.end() ? *it : Student();
+
     }
 };
 StudentManager* StudentManager::instance = nullptr;
